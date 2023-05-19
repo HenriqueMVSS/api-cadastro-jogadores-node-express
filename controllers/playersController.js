@@ -65,8 +65,71 @@ function addPlayer(playerData) {
   });
 }
 
+function updatePlayer(playerId, playerData) {
+  return new Promise((resolve, reject) => {
+    const { nome, idade, time } = playerData;
+
+    if (!nome || !idade || !time) {
+      reject(new Error('Nome, idade e time são campos obrigatórios.'));
+      return;
+    }
+
+    loadPlayersData()
+      .then(players => {
+        const playerIndex = players.findIndex(player => player.id === playerId);
+
+        if (playerIndex === -1) {
+          reject(new Error('Jogador não encontrado.'));
+          return;
+        }
+
+        players[playerIndex].nome = nome;
+        players[playerIndex].idade = idade;
+        players[playerIndex].time = time;
+
+        return savePlayersData(players);
+      })
+      .then(() => {
+        console.log('Jogador atualizado com sucesso!');
+        resolve();
+      })
+      .catch(error => {
+        console.error('Erro ao atualizar jogador:', error);
+        reject(error);
+      });
+  });
+}
+
+function deletePlayer(playerId) {
+  return new Promise((resolve, reject) => {
+    loadPlayersData()
+      .then(players => {
+        const playerIndex = players.findIndex(player => player.id === playerId);
+
+        if (playerIndex === -1) {
+          reject(new Error('Jogador não encontrado.'));
+          return;
+        }
+
+        players.splice(playerIndex, 1);
+
+        return savePlayersData(players);
+      })
+      .then(() => {
+        console.log('Jogador excluído com sucesso!');
+        resolve();
+      })
+      .catch(error => {
+        console.error('Erro ao excluir jogador:', error);
+        reject(error);
+      });
+  });
+}
+
 module.exports = {
   loadPlayersData,
   savePlayersData,
-  addPlayer
+  addPlayer,
+  updatePlayer,
+  deletePlayer
 };
